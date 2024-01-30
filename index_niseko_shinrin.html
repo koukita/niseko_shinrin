@@ -52,8 +52,8 @@
                     },
                 ],
             },        
-            center: [142.569580, 43.424999], // starting position [lng, lat]
-            zoom: 7, // starting zoom
+            center: [140.688014, 42.804915], // starting position [lng, lat]
+            zoom: 10, // starting zoom
         });
 
         map.on('load',function(){
@@ -61,10 +61,10 @@
                 type:'geojson',
                 data:'https://koukita.github.io/niseko_shinrin/data/2022_niseko_town_shouhan.geojson'
             });
-            // map.addSource('chiban',{
-            //     type:'geojson',
-            //     data:'https://koukita.github.io/niseko_shinrin/data/20230701_niseko_town_hokkaido_chibanzu.geojson'
-            // });
+            map.addSource('chiban',{
+                type:'geojson',
+                data:'https://koukita.github.io/niseko_shinrin/data/20230701_niseko_town_hokkaido_chibanzu.geojson'
+            });
 
             //塗りつぶし
             map.addLayer({
@@ -78,17 +78,17 @@
                     //'fill-outline-color': '#000FFF',  //太さは設定できない？
                 }
             });
-            // map.addLayer({
-            //     'id': 'chiban_fill', //ダブらない任意の名称
-            //     'type': 'fill',
-            //     'source': 'chiban',  //上の「addSource」で指定した名称
-            //     'layout': {},
-            //     'paint': {
-            //         'fill-color': '#008000',
-            //         'fill-opacity': 0.7,
-            //         //'fill-outline-color': '#000FFF',  //太さは設定できない？
-            //     }
-            // });
+            map.addLayer({
+                'id': 'chiban_fill', //ダブらない任意の名称
+                'type': 'fill',
+                'source': 'chiban',  //上の「addSource」で指定した名称
+                'layout': {},
+                'paint': {
+                    'fill-color': '#008000',
+                    'fill-opacity': 0.1,
+                    //'fill-outline-color': '#000FFF',  //太さは設定できない？
+                }
+            });
 
             //ポリゴンの枠線を表示
             map.addLayer({
@@ -102,16 +102,16 @@
                 }
             });
 
-            // map.addLayer({
-            //     'id': 'chiban_line', //ダブらない任意の名称
-            //     'type': 'line',
-            //     'source': 'chiban',  //上の「addSource」で指定した名称
-            //     'layout': {},
-            //     'paint': {
-            //         'line-color': '#000000',
-            //         'line-width': 1,
-            //     }
-            // });
+            map.addLayer({
+                'id': 'chiban_line', //ダブらない任意の名称
+                'type': 'line',
+                'source': 'chiban',  //上の「addSource」で指定した名称
+                'layout': {},
+                'paint': {
+                    'line-color': '#0400ff',
+                    'line-width': 1,
+                }
+            });
 
             //ラベルの設定
             map.addLayer({
@@ -123,7 +123,7 @@
                     'text-field': ['get', 'SYOLBL'],
                     'text-variable-anchor': ['center'],
                     'text-radial-offset': 0,
-                    'text-padding': 50, //テキストから指定したピクセル値の範囲にあるラベルを表示しない
+                    'text-padding': 10, //テキストから指定したピクセル値の範囲にあるラベルを表示しない
                     'text-justify': 'auto',
                     'text-size':12,
                     //'icon-image': "circle_8"
@@ -135,27 +135,27 @@
                 }
 
             });
-            // map.addLayer({
-            //     'id': 'chiban_label', //ダブらない任意の名称
-            //     'type': 'symbol',
-            //     'source': 'chiban',  //上の「addSource」で指定した名称
-            //     'minzoom': 10,
-            //     'layout': {
-            //         'text-field': ['get', '地番'],
-            //         'text-variable-anchor': ['center'],
-            //         'text-radial-offset': 0,
-            //         'text-padding': 50, //テキストから指定したピクセル値の範囲にあるラベルを表示しない
-            //         'text-justify': 'auto',
-            //         'text-size':12,
-            //         //'icon-image': "circle_8"
-            //     },
-            //     'paint': {
-            //         'text-color': '#006400',  //文字の色
-            //         'text-halo-color': 'rgb(255, 255, 255)', //文字の縁取り色
-            //         'text-halo-width': 2,  //文字の縁取り幅
-            //     }
+            map.addLayer({
+                'id': 'chiban_label', //ダブらない任意の名称
+                'type': 'symbol',
+                'source': 'chiban',  //上の「addSource」で指定した名称
+                'minzoom': 10,
+                'layout': {
+                    'text-field': ['get', '地番'],
+                    'text-variable-anchor': ['center'],
+                    'text-radial-offset': 0,
+                    'text-padding': 10, //テキストから指定したピクセル値の範囲にあるラベルを表示しない
+                    'text-justify': 'auto',
+                    'text-size':10,
+                    //'icon-image': "circle_8"
+                },
+                'paint': {
+                    'text-color': '#0400ff',  //文字の色
+                    'text-halo-color': 'rgb(255, 255, 255)', //文字の縁取り色
+                    'text-halo-width': 2,  //文字の縁取り幅
+                }
 
-            // });
+            });
         });
         // 地図上でクリックしたときの処理
         //参考にしたサイト（http://taustation.com/maplibre-popup/）
@@ -185,23 +185,23 @@
                                     <td>' + String(feature.properties['小班']) + '</td>\
                                 </tr>\
                             </table>';
-                        // } else if (feature.properties['地番'] !== undefined) {
-                        // var popupContent = '<b>地番図</b><table width="300">\
-                        //     <col width="100">\
-                        //     <col width="200">\
-                        //         <tr>\
-                        //             <th scope="row">大字名称</th>\
-                        //             <td>' + String(feature.properties['大字名称']) + '</td>\
-                        //         </tr>\
-                        //         <tr>\
-                        //             <th scope="row">小字名称</th>\
-                        //             <td>' + String(feature.properties['小字名称']) + '</td>\
-                        //         </tr>\
-                        //         <tr>\
-                        //             <th scope="row">地番</th>\
-                        //             <td>' + String(feature.properties['地番']) + '</td>\
-                        //         </tr>\
-                        //     </table>';
+                        } else if (feature.properties['地番'] !== undefined) {
+                        var popupContent = '<b>地番図</b><table width="300">\
+                            <col width="100">\
+                            <col width="200">\
+                                <tr>\
+                                    <th scope="row">大字名称</th>\
+                                    <td>' + String(feature.properties['大字名称']) + '</td>\
+                                </tr>\
+                                <tr>\
+                                    <th scope="row">小字名称</th>\
+                                    <td>' + String(feature.properties['小字名称']) + '</td>\
+                                </tr>\
+                                <tr>\
+                                    <th scope="row">地番</th>\
+                                    <td>' + String(feature.properties['地番']) + '</td>\
+                                </tr>\
+                            </table>';
                     
                         }                    
                     let popup = new maplibregl.Popup({

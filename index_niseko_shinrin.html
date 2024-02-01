@@ -6,8 +6,8 @@
     <meta charset="utf-8" />
     <title>北海道ニセコ町森林位置図</title>
     <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no" />
-    <script src="https://koukita.github.io/opendata_websample/Library/maplibre/2.4.0/maplibre-gl.js"></script>
-    <link href="https://koukita.github.io/opendata_websample/Library/maplibre/2.4.0/maplibre-gl.css" rel="stylesheet" />
+    <script src="https://unpkg.com/maplibre-gl@2.4.0/dist/maplibre-gl.js"></script>
+    <link href="https://unpkg.com/maplibre-gl@2.4.0/dist/maplibre-gl.css" rel="stylesheet" />
     <style>
         #map {
           width: 90%;
@@ -16,16 +16,18 @@
         }
     </style>
 
-    この地図は北海道ニセコ町の森林の位置を表したものです。（区域の表示には少し時間がかかります）<br>
-    地図の左上にあるポイントアイコンをクリックすると、現在位置を表示します。
+    この地図は北海道ニセコ町の森林の位置と地番図を表示したものです。<br>
+    </style>
+    <div><font color="darkcyan"><b>地図の表示切替</b></font></div>
+    <input type="checkbox" id="ck_shinrin" checked> 森林地図
+    <input type="checkbox" id="ck_chiban"  checked> 地番図    
+
     <div id="map"></div><!-- 地図表示エリア -->
-    出典：国有林【<a href="https://nlftp.mlit.go.jp/ksj/gml/datalist/KsjTmplt-A45.html">国土数値情報＞国有林野データ</a>】、   
-    道有林【<a href="https://www.pref.hokkaido.lg.jp/sr/dyr/DOP.html">道有林森林資源情報資料ダウンロードページ</a>】<br>
-    作成者：きた　こういち<br>
-    上記の国有林、道有林のGISデータをQGISで加工しました。<br>
-    データは<a href="https://github.com/koukita/niseko_shinrin/tree/main/data">GitHub</a>に保存してあります。     
+    出典：森林データ【<a href="https://www.pref.hokkaido.lg.jp/sr/srk/A004/B003/">北海道森林情報オープンデータ</a>】、   
+    地番図【<a href="https://www.harp.lg.jp/opendata/dataset/1750.html">地番図データ（GIS用）【北海道ニセコ町】（北海道オープンデータポータル）</a>】<br>
+
     <script>
-        var map = new maplibregl.Map({
+        let map = new maplibregl.Map({
             container: 'map', // container id
             //地理院地図の表示
             //参考にしたサイト（https://day-journal.com/memo/maplibregljs-005/）
@@ -53,7 +55,7 @@
                 ],
             },        
             center: [140.688014, 42.804915], // starting position [lng, lat]
-            zoom: 10, // starting zoom
+            zoom: 12, // starting zoom
         });
 
         map.on('load',function(){
@@ -73,9 +75,8 @@
                 'source': 'shinrin',  //上の「addSource」で指定した名称
                 'layout': {},
                 'paint': {
-                    'fill-color': '#ff4500',
-                    'fill-opacity': 0.7,
-                    //'fill-outline-color': '#000FFF',  //太さは設定できない？
+                    'fill-color': '#90ee90',
+                    'fill-opacity': 0.5,
                 }
             });
             map.addLayer({
@@ -85,8 +86,7 @@
                 'layout': {},
                 'paint': {
                     'fill-color': '#008000',
-                    'fill-opacity': 0.1,
-                    //'fill-outline-color': '#000FFF',  //太さは設定できない？
+                    'fill-opacity': 0.0,
                 }
             });
 
@@ -108,7 +108,7 @@
                 'source': 'chiban',  //上の「addSource」で指定した名称
                 'layout': {},
                 'paint': {
-                    'line-color': '#0400ff',
+                    'line-color': '#ff0000',
                     'line-width': 1,
                 }
             });
@@ -129,7 +129,7 @@
                     //'icon-image': "circle_8"
                 },
                 'paint': {
-                    'text-color': 'rgb(255, 0, 0)',  //文字の色
+                    'text-color': '#006400',  //文字の色
                     'text-halo-color': 'rgb(255, 255, 255)', //文字の縁取り色
                     'text-halo-width': 2,  //文字の縁取り幅
                 }
@@ -150,7 +150,7 @@
                     //'icon-image': "circle_8"
                 },
                 'paint': {
-                    'text-color': '#0400ff',  //文字の色
+                    'text-color': '#ff0000',  //文字の色
                     'text-halo-color': 'rgb(255, 255, 255)', //文字の縁取り色
                     'text-halo-width': 2,  //文字の縁取り幅
                 }
@@ -163,17 +163,18 @@
             // クリック位置の経緯度
             let lng = evt.lngLat.lng;
             let lat = evt.lngLat.lat;
-    
             // クリック位置のFeature群を取得／レイヤーを限定している
             let features = map.queryRenderedFeatures(evt.point, {layers: ['shinrin_fill','chiban_fill']});
+            let popup_shinrin = ''
+            let popup_chiban = ''
             // 取得したFeature群の属性等をコンソールに表示する
             features.forEach((feature) => {
                 if (typeof feature !== 'undefined') {
                     //ポップアップのテーブルをリストから作成する
-                    var popupitem = "";
+                    let popupitem = "";
                     //ポップアップ時に表示する吹き出し（テーブル）の設定
                     if (feature.properties['SYOLBL'] !== undefined){
-                        var popupContent = '<b>森林データ</b><table width="300">\
+                        popup_shinrin = '<b>森林地図</b><table width="300">\
                             <col width="100">\
                             <col width="200">\
                                 <tr>\
@@ -184,38 +185,76 @@
                                     <th scope="row">小班</th>\
                                     <td>' + String(feature.properties['小班']) + '</td>\
                                 </tr>\
-                            </table>';
-                        } else if (feature.properties['地番'] !== undefined) {
-                        var popupContent = '<b>地番図</b><table width="300">\
-                            <col width="100">\
-                            <col width="200">\
                                 <tr>\
-                                    <th scope="row">大字名称</th>\
-                                    <td>' + String(feature.properties['大字名称']) + '</td>\
-                                </tr>\
-                                <tr>\
-                                    <th scope="row">小字名称</th>\
-                                    <td>' + String(feature.properties['小字名称']) + '</td>\
-                                </tr>\
-                                <tr>\
-                                    <th scope="row">地番</th>\
-                                    <td>' + String(feature.properties['地番']) + '</td>\
+                                    <th scope="row">市町村名</th>\
+                                    <td>' + String(feature.properties['市町村名']) + '</td>\
                                 </tr>\
                             </table>';
-                    
-                        }                    
-                    let popup = new maplibregl.Popup({
+                    }; 
+                    if (feature.properties['地番'] !== undefined) {
+                    popup_chiban = '<b>地番図</b><table width="300">\
+                        <col width="100">\
+                        <col width="200">\
+                            <tr>\
+                                <th scope="row">大字名称</th>\
+                                <td>' + String(feature.properties['大字名称']) + '</td>\
+                            </tr>\
+                            <tr>\
+                                <th scope="row">小字名称</th>\
+                                <td>' + String(feature.properties['小字名称']) + '</td>\
+                            </tr>\
+                            <tr>\
+                                <th scope="row">地番</th>\
+                                <td>' + String(feature.properties['地番']) + '</td>\
+                            </tr>\
+                        </table>';
+                
+                    };                    
+
+                };
+            });
+            let popup = new maplibregl.Popup({
                         closeOnClick: true,
                         className: 'popup'
                     })
                     .setLngLat([lng, lat])
-                    .setHTML(popupContent)
+                    .setHTML(popup_shinrin + popup_chiban)
                     .setMaxWidth("300px")
                     .addTo(map);
-                }
-            });
+
+        });
+ 
+ 
+ 
+        // チェックボックスで表示の切り替え
+        let check_shirin = document.getElementById('ck_shinrin');
+        let check_chiban = document.getElementById('ck_chiban');
+        
+        //　森林地図の表示切り替え
+        ck_shinrin.addEventListener('change',function(){ //チェックボックスが変化したときの処理
+            if(check_shirin.checked){
+                map.setLayoutProperty('shinrin_fill', 'visibility', 'visible');
+                map.setLayoutProperty('shinrin_line', 'visibility', 'visible');
+                map.setLayoutProperty('shinrin_label', 'visibility', 'visible');
+            } else {
+                map.setLayoutProperty('shinrin_fill', 'visibility', 'none');
+                map.setLayoutProperty('shinrin_line', 'visibility', 'none');
+                map.setLayoutProperty('shinrin_label', 'visibility', 'none'); 
+            }
         });
 
+        //　地番図の表示切り替え
+        ck_chiban.addEventListener('change',function(){ //チェックボックスが変化したときの処理
+            if(check_chiban.checked){
+                map.setLayoutProperty('chiban_fill', 'visibility', 'visible');
+                map.setLayoutProperty('chiban_line', 'visibility', 'visible');
+                map.setLayoutProperty('chiban_label', 'visibility', 'visible');
+            } else {
+                map.setLayoutProperty('chiban_fill', 'visibility', 'none');
+                map.setLayoutProperty('chiban_line', 'visibility', 'none');
+                map.setLayoutProperty('chiban_label', 'visibility', 'none'); 
+            }
+        });
 
         //UI
         map.addControl(new maplibregl.GeolocateControl({positionOptions: {enableHighAccuracy: true},trackUserLocation: true}), 'top-left');  //現在地の表示
